@@ -1,7 +1,7 @@
-// Замени на свой, чтобы получить независимый от других набор данных.
-// "боевая" версия инстапро лежит в ключе prod
-const personalKey = "valeriya-kiseleva";
-const baseHost = "https://webdev-hw-api.vercel.app";
+import { renderApp, setPosts } from "./index.js";
+
+const personalKey = "prod";
+const baseHost = " https://wedev-api.sky.pro";
 const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 
 export function getPosts({ token }) {
@@ -67,4 +67,51 @@ export function uploadImage({ file }) {
   }).then((response) => {
     return response.json();
   });
+}
+
+export function addPost({ token, imageUrl }) {
+  const commentInputElement = document.getElementById("description")
+  return fetch(postsHost, {
+    method: "POST",
+    body: JSON.stringify({
+      description: commentInputElement.value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;'),
+      imageUrl,
+    }),
+    headers: {
+      Authorization: token,
+    },
+  }).then((response) => {
+    if (response.status === 400) {
+      alert('Нет фото или описания')
+    } else {
+      return response.json()
+    }
+  })
+}
+
+export function getPostsOfUser({ token, userId }) {
+  return fetch(`${postsHost}/user-posts/${userId}`, {
+    method: 'GET',
+    headers: {
+      Authorization: token,
+    },
+  })
+    .then((response) => {
+      if (response.status === 401) {
+        throw new Error('Нет авторизации')
+      }
+      return response.json()
+    })
+    .then((data) => {
+      setPosts(data.posts)
+      return data.posts
+    })
+    .catch((error) => {
+      alert('Кажется, у вас сломался интернет, попробуйте позже')
+      console.warn(error)
+    })
 }
