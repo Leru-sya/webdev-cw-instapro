@@ -1,6 +1,7 @@
-import { renderApp, setPosts } from "./index.js";
+import {setPosts } from "./index.js";
 
-const personalKey = "prod";
+
+const personalKey = "valeriya-kiseleva";
 const baseHost = " https://wedev-api.sky.pro";
 const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 
@@ -74,11 +75,7 @@ export function addPost({ token, imageUrl }) {
   return fetch(postsHost, {
     method: "POST",
     body: JSON.stringify({
-      description: commentInputElement.value
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;'),
+        description: commentInputElement.value,
       imageUrl,
     }),
     headers: {
@@ -114,4 +111,36 @@ export function getPostsOfUser({ token, userId }) {
       alert('Кажется, у вас сломался интернет, попробуйте позже')
       console.warn(error)
     })
+}
+
+export function addLikePost({ token, postId }) {
+  return fetch(`${postsHost}/${postId}/like`, {
+      method: 'POST',
+      headers: {
+          Authorization: token,
+      },
+  }).then((response) => {
+      if (response.status === 401) {
+          alert('Лайкать посты могут только авторизованные пользователи')
+          throw new Error('Нет авторизации')
+      }
+
+      return response.json()
+  })
+}
+
+export function removeLikePost({ token, postId }) {
+  return fetch(`${postsHost}/${postId}/dislike`, {
+      method: 'POST',
+      headers: {
+          Authorization: token,
+      },
+  }).then((response) => {
+      if (response.status === 401) {
+          alert('Лайкать посты могут только авторизованные пользователи')
+          throw new Error('Нет авторизации')
+      }
+
+      return response.json()
+  })
 }

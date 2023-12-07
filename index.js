@@ -24,7 +24,7 @@ export const setPosts = (newPosts) => {
   posts = newPosts
 }
 
-const getToken = () => {
+export const getToken = () => {
   const token = user ? `Bearer ${user.token}` : undefined;
   return token;
 };
@@ -94,7 +94,7 @@ export const goToPage = (newPage, data) => {
   throw new Error("страницы не существует");
 };
 
-const renderApp = () => {
+export const renderApp = () => {
   const appEl = document.getElementById("app");
   if (page === LOADING_PAGE) {
     return renderLoadingPageComponent({
@@ -125,10 +125,12 @@ const renderApp = () => {
         // TODO: реализовать добавление поста в API
         console.log("Добавляю пост...", { description, imageUrl });
         addPost({
+          description,
           token: getToken(),
           imageUrl
-        }).then(() => {
-          goToPage(POSTS_PAGE);
+        }).then((data) => {
+          if(data) {goToPage(POSTS_PAGE);}
+          
         })
       },
     });
